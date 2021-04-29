@@ -7,12 +7,18 @@ const Board = () => {
   const [squares, setSquares] = useState(Array(9).fill(null));
   const [xIsNext, setXIsNext] = useState(true);
 
-  const status = (xIsNext ? "Player1 (X) where would you like to move?" : "Player2 (O) where would you like to move?");
+  let status = (xIsNext ? "Player1 (X) where would you like to move?" : "Player2 (O) where would you like to move?");
 
   const spaceClicked = (i) => {
     // use slice to create a copy of the squares array to modify 
     //insteaad of modifying the existing array.
     const newSquares = squares.slice();
+    //return early by ignoring a click if someone has won the game or if 
+    // a square is already filled
+
+    if (calculateWinner(squares) || squares[i]) {
+      return;
+    }
     newSquares[i] = xIsNext ? 'X' : 'O';
     setSquares(newSquares);
     setXIsNext(!xIsNext);
@@ -23,9 +29,39 @@ const Board = () => {
     return (
 
       <Square value={squares[index]} onClick={() => spaceClicked(index)} />
-    )
-      
-      
+    )      
+  }
+
+  //given an array of 9 squares this function
+  //will check for a winner and return x
+  // o or null as appropriate
+  const calculateWinner = (squares) => {
+    const lines = [
+      [0, 1, 2],
+      [3, 4, 5],
+      [6, 7, 8],
+      [0, 3, 6],
+      [1, 4, 7],
+      [2, 5, 8],
+      [0, 4, 8],
+      [2, 4, 6],
+    ];
+    for (let i = 0; i < lines.length; i++) {
+      const [a, b, c] = lines[i];
+      if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
+        return squares[a];
+      }
+    }
+    return null;
+  }
+
+  const winner = calculateWinner(squares)
+  if (winner === "X") {
+    status = "Winner: Player1 (X)";
+  } else if (winner === "O"){
+    status = "Winner: Player2 (O)";
+  } else {
+    status = (xIsNext ? "Player1 (X) where would you like to move?" : "Player2 (O) where would you like to move?");
   }
 
   return (
